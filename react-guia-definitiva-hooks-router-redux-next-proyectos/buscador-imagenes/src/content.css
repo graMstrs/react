@@ -1,0 +1,12 @@
+.container {
+    display: flex;
+    background-color: #eee;
+    justify-content: center;
+    width: 100%;
+}
+
+.center{
+    column-count: 3;
+    width: 1200px;
+
+}
