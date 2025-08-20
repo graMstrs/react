@@ -17,10 +17,9 @@ export const makeFetchingReducer = actions => (state = initialFetching, action) 
     }
 }
 
-
 export const makeSetReducer = actions => (state = 'all', action) => {
     switch( action.type ) {
-        case actions[0]
+        case actions[0]:
             return action.payload
         default:
             return state

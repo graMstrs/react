@@ -1,4 +1,5 @@
 import { combineReducers } from "redux" 
+import { useDispatch } from "react-redux"
 import { makeFetchingReducer, makeSetReducer } from "./utils"
 
 
@@ -12,7 +13,7 @@ export const setError = e => ({ type: 'todos/error', error: e.message})
 
 export const setComplete = payload => ({ type: 'todo/complete', payload })
 
-export const setFilter = payload => { type: 'filter/set', payload}
+export const setFilter = payload => ({ type: 'filter/set', payload})
 
 export const fetchThunk = () => async dispatch => {
     dispatch( setPending() )
@@ -33,6 +34,8 @@ export const fetchingReducer = makeFetchingReducer([
     'todos/fulfilled',
     'todos/rejected',
 ])
+
+const fulfilledReducer = (state, action) => {}
 
 export const todosReducer = (state = [], action) => {
     switch (action.type) {
@@ -68,7 +71,7 @@ export const reducer = combineReducers({
 })
 
 
-const selectTodos = state => {
+export const selectTodos = state => {
     const { todos: { entities }, filter } = state
 
     if (filter === 'complete'){
@@ -82,9 +85,9 @@ const selectTodos = state => {
     return entities
 }
 
-const selectStatus = state => state.todos.status
+export const selectStatus = state => state.todos.status
 
-const TodoItem = ({ todo }) => {
+export const TodoItem = ({ todo }) => {
     const dispatch = useDispatch()
 
     return (
