@@ -1,65 +1,34 @@
 import { combineReducers } from "redux" 
 import { useDispatch } from "react-redux"
-import { makeFetchingReducer, makeSetReducer } from "./utils"
+import { mac, mat, asyncMac, makeFetchingReducer, makeSetReducer, reduceReducers, makeCrudReducer } from "./utils"
 
+const asyncTodos = mat('todos')
 
-export const setPending = () => {
-    return { type: 'todos/pending' }
-}
-
-export const setFulfilled = payload => ({  type: 'todosFulfilled', payload})
-
-export const setError = e => ({ type: 'todos/error', error: e.message})
-
-export const setComplete = payload => ({ type: 'todo/complete', payload })
-
-export const setFilter = payload => ({ type: 'filter/set', payload})
+const [setPending, setFulfilled, setError] = asyncMac(asyncTodos)
+export const setComplete =  mac('todo/complete', 'payload')
+export const setFilter =    mac('filter/set', 'payload')
 
 export const fetchThunk = () => async dispatch => {
     dispatch( setPending() )
     try {
-        const response = await fetch('https://jsonplaceholder.typicode.com/todos')
+        const response = await fetch('https://jsonplaceholder.cypress.io/todos/1')
         const data = await response.json()
         const todos = data.slice(0, 10)
         dispatch( setFulfilled(todos) )
     } catch (e) {
-        dispatch( setError())
+        dispatch( setError(e.message))
     }
 }
 
 export const filterReducer = makeSetReducer(['filter/set'])
 
-export const fetchingReducer = makeFetchingReducer([
-    'todos/pending', 
-    'todos/fulfilled',
-    'todos/rejected',
-])
+export const fetchingReducer = makeFetchingReducer(asyncTodos)
 
-const fulfilledReducer = (state, action) => {}
+const fulfilledReducer = makeSetReducer(['todos/fulfilled'])
 
-export const todosReducer = (state = [], action) => {
-    switch (action.type) {
-        case 'todos/fulfilled': {
-            return action.payload
-        }
-        case 'todo/add': {
-            return state.concat({ ...action.payload }) 
-        }
-        case 'todo/complete': {
-            const newTodos = state.map(todo => {
-                if (todo.id === action.payload.id){
-                    return { ...todo, completed: !todo.completed}
-                }
-                return todo
-            })
-        
-            return newTodos
-    
-        }
-        default:
-            return state
-    }
-}
+const crudReducer = makeCrudReducer(['todo/add', 'todo/complete'])
+
+export const todosReducer = reduceReducers(crudReducer, fulfilledReducer)
 
 
 export const reducer = combineReducers({
